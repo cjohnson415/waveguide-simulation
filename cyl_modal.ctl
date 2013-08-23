@@ -1,10 +1,10 @@
 (define-param core_diameter 4.0) ; unit of length is mm
-(define-param wave_length 3) ; wavelength in mm
-(define-param dpml 1) ; thickness of PML
+(define-param wave_length 10.0) ; wavelength in mm
+(define-param dpml 2) ; thickness of PML
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
 (define-param cy (+ core_diameter 2.0)) ; size of cell in Y direction
-(define-param cz (* wave_length 8.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 4.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) (* 2 dpml))) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
@@ -12,24 +12,22 @@
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
-
 (set! geometry (list
-	(make cylinder (center 0 0 (+ source_z (/ cz 2))) (radius infinity) (height cz)
+	(make cylinder (center 0 0 2) (radius infinity) (height cz)
 		(material metal))
 	(make cylinder (center 0 0 0) (radius (/ core_diameter 2)) (height infinity)
 		(material air))))
 
-(set! sources (list
-		(make source
-			(src (make continuous-src (frequency fcen) (width 20)))
-			(component Ey)
-			(center 0 0 source_z)
-			(size (/ core_diameter 2) (/ core_diameter 2) (/ wave_length 2)))))
+(set! pml-layers (list (make pml (thickness dpml))))
 
-(set! pml-layers (list (make pml (thickness 1.0))))
+(set! sources (list
+	(make source
+		(src (make gaussian-src (frequency fcen) (fwidth df)))
+		(component Ey) (center 0 0 source_z))))
 
 (set! resolution 10)
 
-(run-until 400
+(run-sources+ 300
 	(at-beginning output-epsilon)
-	(to-appended "ey" (at-every 0.1 output-efield-y)))
+	(after-sources (harminv Ey (vector3 0 0 0) fcen df))
+	(after-sources (harminv Ey (vector3 .1 .1 0) fcen df)))
