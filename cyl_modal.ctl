@@ -13,7 +13,7 @@
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
 (set! geometry (list
-	(make cylinder (center 0 0 2) (radius infinity) (height cz)
+	(make cylinder (center 0 0 0) (radius infinity) (height cz)
 		(material metal))
 	(make cylinder (center 0 0 0) (radius (/ core_diameter 2)) (height infinity)
 		(material air))))
@@ -23,11 +23,11 @@
 (set! sources (list
 	(make source
 		(src (make gaussian-src (frequency fcen) (fwidth df)))
-		(component Ey) (center 0 0 source_z))))
+		(component Ey) (center .1 .1 .1))))
 
 (set! resolution 10)
 
 (run-sources+ 300
 	(at-beginning output-epsilon)
 	(after-sources (harminv Ey (vector3 0 0 0) fcen df))
-	(after-sources (harminv Ey (vector3 .1 .1 0) fcen df)))
+	(after-sources (harminv Ey (vector3 .1 .1 .1) fcen df)))
