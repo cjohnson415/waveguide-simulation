@@ -1,10 +1,10 @@
 (define-param core_diameter 4.0) ; unit of length is mm
-	(define-param wave_length 3.75) ; wavelength in mm
+	(define-param wave_length 3) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
 (define-param cy (+ core_diameter 2.0)) ; size of cell in Y direction
-(define-param cz (* wave_length 4.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 8.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) (* 2 dpml))) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
