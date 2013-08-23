@@ -1,5 +1,5 @@
 (define-param core_diameter 4.0) ; unit of length is mm
-	(define-param wave_length 3) ; wavelength in mm
+	(define-param wave_length 2) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
@@ -23,7 +23,7 @@
 		(make source
 			(src (make continuous-src (frequency fcen) (width 20)))
 			(component Ey)
-			(center 0 0 (+ (/ cz -2.0) 2.0))
+			(center (/ core_diameter 4) 0 (+ (/ cz -2.0) 2.0))
 			(size (/ core_diameter 2) (/ core_diameter 2) (/ wave_length 2)))))
 
 (set! pml-layers (list (make pml (thickness 1.0))))
@@ -32,4 +32,4 @@
 
 (run-until 200
 	(at-beginning output-epsilon)
-	(to-appended "ey" (at-every 0.6 output-efield-y)))
+	(to-appended "ey" (at-every 0.1 output-efield-y)))
