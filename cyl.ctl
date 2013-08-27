@@ -4,11 +4,12 @@
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
 (define-param cy (+ core_diameter 2.0)) ; size of cell in Y direction
-(define-param cz (* wave_length 2.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 8.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) (* 2 dpml))) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
 (define-param df 0.1)  ; pulse width (in frequency)
+(define-param smooth_t 20)
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
@@ -21,13 +22,13 @@
 
 (set! sources (list
 		(make source
-			(src (make continuous-src (frequency fcen)))
+			(src (make continuous-src (frequency fcen) (width smooth_t)))
 			(component Ey)
-			(amplitude (exp (* 0+1i (* 2 1.570796327))))
+			(amplitude (exp (* 0+1i pi)))
 			(center (/ core_diameter 4) 0 source_z)
 			(size (/ core_diameter 2) 0 (/ wave_length 2)))
 		(make source
-			(src (make continuous-src (frequency fcen)))
+			(src (make continuous-src (frequency fcen) (width smooth_t)))
 			(component Ey)
 			(center (/ core_diameter -4) 0 source_z)
 			(size (/ core_diameter 2) 0 (/ wave_length 2)))))
@@ -36,6 +37,6 @@
 
 (set! resolution 10)
 
-(run-until 20
+(run-until 200
 	(at-beginning output-epsilon)
 	(to-appended "ey" (at-every 0.1 output-efield-y)))
