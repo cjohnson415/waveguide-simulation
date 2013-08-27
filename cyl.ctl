@@ -6,9 +6,9 @@
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
 (define-param cy (+ core_diameter 2.0)) ; size of cell in Y direction
-(define-param cz (* wave_length 12.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 20.0)) ; size of cell in Z direction
 
-(define-param source_z (+ (/ cz -2.0) (+ wave_length dpml))) ;
+(define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
 (define-param fcen (/ 1 above_cutoff)) ; pulse center frequency
 (define-param df 0.1)  ; pulse width (in frequency)
 (define-param smooth_t 20)
@@ -30,8 +30,8 @@
 
 (set! pml-layers (list (make pml (thickness 1.0))))
 
-(set! resolution 10)
+(set! resolution 5)
 
-(run-until 200
+(run-until 400
 	(at-beginning output-epsilon)
 	(to-appended "ey" (at-every 0.5 output-efield-y)))
