@@ -4,7 +4,7 @@
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
 (define-param cy (+ core_diameter 2.0)) ; size of cell in Y direction
-(define-param cz (* wave_length 8.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 2.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) (* 2 dpml))) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
@@ -21,8 +21,12 @@
 
 (set! sources (list
 		(make source
-			(src (make continuous-src (frequency fcen) (width 20)))
+			(src (make continuous-src (frequency fcen))); (width 20)))
 			(component Ey)
+			(center 0 0 source_z)
+			(size (/ core_diameter 2) (/ core_diameter 2) (/ wave_length 2)))
+			(src (make continuous-src (frequency fcen))); (width 20)))
+			(component -Ey)
 			(center 0 0 source_z)
 			(size (/ core_diameter 2) (/ core_diameter 2) (/ wave_length 2)))))
 
