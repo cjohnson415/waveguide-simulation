@@ -13,7 +13,6 @@
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
-
 (set! geometry (list
 	(make cylinder (center 0 0 (+ source_z (/ cz 2))) (radius infinity) (height cz)
 		(material metal))
