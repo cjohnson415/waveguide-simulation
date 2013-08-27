@@ -21,19 +21,21 @@
 
 (set! sources (list
 		(make source
-			(src (make continuous-src (frequency fcen))); (width 20)))
+			(src (make continuous-src (frequency fcen)))
 			(component Ey)
-			(center 0 0 source_z)
-			(size (/ core_diameter 2) (/ core_diameter 2) (/ wave_length 2)))
-			(src (make continuous-src (frequency fcen))); (width 20)))
-			(component -Ey)
-			(center 0 0 source_z)
-			(size (/ core_diameter 2) (/ core_diameter 2) (/ wave_length 2)))))
+			(amplitude (exp (* 0+1i (* 2 1.570796327))))
+			(center (/ core_diameter 4) 0 source_z)
+			(size (/ core_diameter 2) 0 (/ wave_length 2)))
+		(make source
+			(src (make continuous-src (frequency fcen)))
+			(component Ey)
+			(center (/ core_diameter -4) 0 source_z)
+			(size (/ core_diameter 2) 0 (/ wave_length 2)))))
 
 (set! pml-layers (list (make pml (thickness 1.0))))
 
 (set! resolution 10)
 
-(run-until 400
+(run-until 20
 	(at-beginning output-epsilon)
 	(to-appended "ey" (at-every 0.1 output-efield-y)))
