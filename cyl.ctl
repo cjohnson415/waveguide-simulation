@@ -1,7 +1,8 @@
 (define-param core_diameter 4.0) ; unit of length is mm
 (define-param above_cutoff 6.66) ; wavelength in mm (45 GHz)
 (define-param below_cutoff 8.57) ; wavelength in mm (35 GHz)
-(define-param wave_length below_cutoff) ; wavelength in mm
+(define-param THZ .6) ; wavelength in mm (.5 THz)
+(define-param wave_length THZ) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
@@ -30,8 +31,8 @@
 
 (set! pml-layers (list (make pml (thickness 1.0))))
 
-(set! resolution 5)
+(set! resolution 15)
 
-(run-until 600
+(run-until 200
 	(at-beginning output-epsilon)
 	(to-appended "ey" (at-every 0.5 output-efield-y)))
