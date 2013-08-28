@@ -5,11 +5,13 @@
 (define-param THZ .6) ; wavelength in mm (.5 THz)
 (define-param wave_length intermediate) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
-(define-param d_lambda 2.0);
+(define-param d_lambda 2.0)
+(define-param outer_diameter (+ core_diameter 2))
+(define-param wvg_pad 1)
 
-(define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
-(define-param cy (+ core_diameter 2.0)) ; size of cell in Y direction
-(define-param cz (* wave_length 20.0)) ; size of cell in Z direction
+(define-param cx (+ outer_diameter dpml wvg_pad)) ; size of cell in X direction
+(define-param cy cx) ; size of cell in Y direction
+(define-param cz (* wave_length 30.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
 (define-param fcen (/ 1.0 wave_length)) ; pulse center frequency
@@ -19,8 +21,8 @@
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
 (set! geometry (list
-	(make cylinder (center 0 0 (+ source_z (/ cz 2))) (radius infinity) (height cz)
-		(material metal))
+	(make cylinder (center 0 0 (+ source_z (/ cz 2))) (radius (/ outer_diameter 2)) (height cz)
+		(material (make medium (D-conductivity 2.26e7))))
 	(make cylinder (center 0 0 0) (radius (/ core_diameter 2)) (height infinity)
 		(material air))))
 
