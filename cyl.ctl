@@ -29,6 +29,11 @@
 (set! sources (list
 		(make source
 			(src (make gaussian-src (frequency fcen) (fwidth df)))
+			(component Ex)
+			(center 0 0 source_z)
+			(size core_diameter core_diameter 0))
+		(make source
+			(src (make gaussian-src (frequency fcen) (fwidth df)))
 			(component Ey)
 			(center 0 0 source_z)
 			(size core_diameter core_diameter 0))))
