@@ -3,7 +3,7 @@
 (define-param below_cutoff 8.57) ; wavelength in mm (35 GHz)
 (define-param THZ .6) ; wavelength in mm (.5 THz)
 (define-param intermediate 3);
-(define-param wave_length intermediate) ; wavelength in mm
+(define-param wave_length above_cutoff) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
