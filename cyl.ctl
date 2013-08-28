@@ -7,7 +7,7 @@
 
 (define-param cx (+ core_diameter 2.0)) ; size of cell in X direction
 (define-param cy (+ core_diameter 2.0)) ; size of cell in Y direction
-(define-param cz (* wave_length 20.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 30.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
@@ -35,4 +35,4 @@
 
 (run-until 200
 	(at-beginning output-epsilon)
-	(to-appended "ey" (at-every 0.5 output-efield-y)))
+	(to-appended "ey" (at-every 0.1 output-efield-y)))
