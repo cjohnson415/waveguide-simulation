@@ -53,6 +53,8 @@
 
 (run-sources+
 	(stop-when-fields-decayed 50 Ey (vector3 0 0 trans_z) 1e-3)
+	(to-appended "ey" (at-every 0.5 output-efield-y))
+	(to-appended "ex" (at-every 0.5 output-efield-x))
 	(at-beginning output-epsilon))
 
 (display-fluxes incident transmitted)
