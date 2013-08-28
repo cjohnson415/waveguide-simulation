@@ -36,4 +36,5 @@
 
 (run-until 400
 	(at-beginning output-epsilon)
-	(to-appended "ey" (at-every 0.5 output-efield-y)))
+	(to-appended "ey" (at-every 0.5 output-efield-y))
+	(to-appended "ex" (at-every 0.5 output-efield-x)))
