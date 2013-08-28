@@ -22,33 +22,17 @@
 (define (get_t position)
 	(/ (vector3-z position) b_helix))
 
-(define (get_xy_helix t_helix)
-	(vector3 (* major_r (cos t_helix)) (* major_r (sin t_helix))))
-
-(define (in_helix? position xy_helix)
-	(if (<
-		(sqrt (+ (expt (- (vector3-x position) (vector3-x xy_helix) ) 2) (expt (- (vector3-y position) (vector3-y xy_helix)) 2)))
-		(* minor_r (cos theta_helix)))
-			#t
-			#f))
-
-(define (helix position)
-	(if (in_helix? position (get_xy_helix (get_t position)))
-		(make medium (D-conductivity 2.26e7))
-		air))
-
-(define (test_mat position)
-	(if (< (vector3-x position) 0) 1 12))
+(define-param dt 1)
+(define (list-of-cyls t_max)
+	(let loop ((i t_max) (res '()))
+		(if (< i 0)
+			res
+			(loop (- i dt)
+				(cons (make block (center 0 0 i) (size 1 1 1) (material metal)) res)))))
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
-(set! eps-averaging? false)
-
-;(set! default-material (make material-function (epsilon-func test_mat)))
-
-(set! geometry (list
-	(make block (center 0 0 (+ source_z (/ cz 2))) (size cx cy cz)
-		(material (make material-function (epsilon-func test_mat))))))
+(set! geometry (list-of-cyls 5))
 
 (set! sources (list
 		(make source
