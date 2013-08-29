@@ -7,13 +7,13 @@
 (define-param dpml 1) ; thickness of PML
 (define-param d_lambda 2.0)
 (define-param outer_diameter (+ core_diameter 2))
-(define-param wvg_pad 1)
+(define-param wvg_pad 8)
 
 (define-param cx (+ outer_diameter dpml wvg_pad)) ; size of cell in X direction
 (define-param cy cx) ; size of cell in Y direction
 (define-param cz (* wave_length 30.0)) ; size of cell in Z direction
 
-(define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
+(define-param source_z (+ (/ cz -2.0) wave_length dpml wvg_pad)) ;
 (define-param fcen (/ 1.0 wave_length)) ; pulse center frequency
 (define-param df (/ 1 d_lambda))  ; pulse width (in frequency)
 (define-param smooth_t 30)
@@ -54,10 +54,10 @@
 (define transmitted ; transmitted flux
 	(add-flux fcen df nfreq
 		(make flux-region
-			(if wvg? (center 0 0 trans_z) (center 0 0 incident_z)) (size (* core_diameter 2) (* core_diameter 2) 0))))
+			(if wvg? (center 0 0 trans_z) (center 0 0 incident_z)) (size (* outer_diameter 2) (* outer_diameter 2) 0))))
 
-(run-sources+ 1
-;	(stop-when-fields-decayed 50 Ey (vector3 0 0 (if wvg? trans_z incident_z)) 1e-3)
+(run-until
+	(stop-when-fields-decayed 50 Ey (vector3 0 0 (if wvg? trans_z incident_z)) (if wvg? 2e-3 1e-3))
 	(to-appended "ey" (at-every 1 output-efield-y))
 	(to-appended "ex" (at-every 1 output-efield-x))
 	(at-beginning output-epsilon))
