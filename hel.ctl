@@ -7,7 +7,7 @@
 (define-param major_r 3)
 (define-param minor_r 0.4)
 
-(define-param cx (+ (* 2 major_r) (* 2 minor_r) 8.0)) ; size of cell in X direction
+(define-param cx (+ (* 2 major_r) (* 2 minor_r) 6.0)) ; size of cell in X direction
 (define-param cy cx) ; size of cell in Y direction
 (define-param cz (* wave_length 20.0)) ; size of cell in Z direction
 
