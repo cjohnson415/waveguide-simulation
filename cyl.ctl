@@ -20,11 +20,16 @@
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
-(set! geometry (list
-	(make cylinder (center 0 0 (+ source_z (/ cz 2))) (radius (/ outer_diameter 2)) (height cz)
-		(material (make medium (D-conductivity 2.26e7))))
-	(make cylinder (center 0 0 0) (radius (/ core_diameter 2)) (height infinity)
-		(material air))))
+(define-param wvg? true) ;if false, no waveguide
+
+(if wvg? (print "wvgtrue!") (print "wvgfalse!"))
+
+(set! geometry
+	  (list
+	  (make cylinder (center 0 0 (+ source_z (/ cz 2))) (radius (/ outer_diameter 2)) (height (if wvg? cz 1))
+		  (material (make medium (D-conductivity 2.26e7))))
+	  (make cylinder (center 0 0 0) (radius (/ core_diameter 2)) (height infinity)
+		  (material air))))
 
 (set! sources (list
 		(make source
@@ -44,22 +49,17 @@
 
 (define-param nfreq 100) ; number of frequencies at which to compute flux
 (define-param trans_z (- (/ cz 2) (* 3 dpml)))
-(define-param incident_z (+ source_z (/ wave_length 4)))
-
-(define incident ; incident flux
-	(add-flux fcen df nfreq
-		(make flux-region
-			(center 0 0 incident_z) (size cx cy 0))))
+(define-param incident_z (+ source_z .5))
 
 (define transmitted ; transmitted flux
 	(add-flux fcen df nfreq
 		(make flux-region
-			(center 0 0 trans_z) (size cx cy 0))))
+			(if wvg? (center 0 0 trans_z) (center 0 0 incident_z)) (size (* core_diameter 2) (* core_diameter 2) 0))))
 
-(run-until 100
-;	(stop-when-fields-decayed 150 Ey (vector3 0 0 trans_z) 1e-3)
-	(to-appended "ey" (at-every .5 output-efield-y))
-;	(to-appended "ex" (at-every 0.5 output-efield-x))
+(run-sources+ 1
+;	(stop-when-fields-decayed 50 Ey (vector3 0 0 (if wvg? trans_z incident_z)) 1e-3)
+	(to-appended "ey" (at-every 1 output-efield-y))
+	(to-appended "ex" (at-every 1 output-efield-x))
 	(at-beginning output-epsilon))
 
-(display-fluxes incident transmitted)
+(display-fluxes transmitted)
