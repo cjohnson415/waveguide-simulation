@@ -3,13 +3,13 @@
 (define-param wave_length intermediate) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
 
-(define-param pitch 4)
+(define-param pitch 1)
 (define-param major_r 3)
 (define-param minor_r 0.4)
 
-(define-param cx (+ (* 2 major_r) (* 2 minor_r) 4.0)) ; size of cell in X direction
+(define-param cx (+ (* 2 major_r) (* 2 minor_r) 8.0)) ; size of cell in X direction
 (define-param cy cx) ; size of cell in Y direction
-(define-param cz (* wave_length 5.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 10.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
@@ -22,17 +22,27 @@
 (define (get_t position)
 	(/ (vector3-z position) b_helix))
 
-(define-param dt 1)
+(define-param dt .01)
 (define (list-of-cyls t_max)
-	(let loop ((i t_max) (res '()))
-		(if (< i 0)
+	(let loop ((t t_max) (res '()))
+		(if (< t 0)
 			res
-			(loop (- i dt)
-				(cons (make block (center 0 0 i) (size 1 1 1) (material metal)) res)))))
+			(loop (- t dt)
+				(cons (make cylinder
+					(center (* major_r (cos t)) (* major_r (sin t)) (* b_helix t))
+					(radius minor_r)
+					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
+					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
+					(material metal)) res)))))
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
-(set! geometry (list-of-cyls 5))
+(set! eps-averaging? false)
+
+(define (make-helix axial-length)
+	(list-of-cyls (/ axial-length b_helix)))
+
+(set! geometry (make-helix 10))
 
 (set! sources (list
 		(make source
