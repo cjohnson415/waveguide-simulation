@@ -9,7 +9,7 @@
 
 (define-param cx (+ (* 2 major_r) (* 2 minor_r) 8.0)) ; size of cell in X direction
 (define-param cy cx) ; size of cell in Y direction
-(define-param cz (* wave_length 10.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 20.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
@@ -29,7 +29,7 @@
 			res
 			(loop (- t dt)
 				(cons (make cylinder
-					(center (* major_r (cos t)) (* major_r (sin t)) (* b_helix t))
+					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z))
 					(radius minor_r)
 					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
 					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
@@ -42,7 +42,7 @@
 (define (make-helix axial-length)
 	(list-of-cyls (/ axial-length b_helix)))
 
-(set! geometry (make-helix 10))
+(set! geometry (make-helix (- cz wave_length dpml)))
 
 (set! sources (list
 		(make source
