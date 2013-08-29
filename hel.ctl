@@ -55,7 +55,6 @@
 
 (set! resolution 10)
 
-(run-until 1
+(run-until 100
 	(at-beginning output-epsilon)
-	(to-appended "ey" (at-every 0.2 output-efield-y))
-	(to-appended "ex" (at-every 0.2 output-efield-x)))
+	(to-appended "ey" (at-every 0.5 output-efield-y)))
