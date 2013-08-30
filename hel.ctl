@@ -55,6 +55,7 @@
 
 (set! resolution 10)
 
+(use-output-directory)
 (run-until 100
 	(at-beginning output-epsilon)
-	(to-appended "ey" (at-every 0.5 output-efield-y)))
+	(at-every 0.5 (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -C $EPS")))
