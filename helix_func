@@ -1,0 +1,23 @@
+(define-param pitch 1)
+(define-param b_helix (/ pitch (* 2 pi)))
+(define-param theta_helix (arcsin (/ b (sqrt (+ (expt major_r 2) (expt b 2))))))
+
+(define (helix position)
+	(define xy_helix )
+	(if (in_helix? position (get_xy_helix (get_t position)))
+		eps_copper
+		eps_air))
+	
+(define (get_xy_helix t_helix)
+	(vector3 (* major_r (cos t_helix)) (* major_r (sin t_helix))))
+
+
+(define (get_t position)
+	(/ (vector3-z position) b_helix))
+
+(define (in_helix? position xy_helix)
+	(if (<
+		(sqrt (+ (expt (- (vector3-x position) (vector3-x xy_helix) ) 2) (expt (- (vector3-y position) (vector3-y xy_helix)) 2)))
+		(* minor_r (cos theta)))
+			#t
+			#f))
