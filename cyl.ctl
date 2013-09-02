@@ -4,6 +4,7 @@
 (define-param intermediate 3) ; (~100 GHz)
 (define-param THZ .6) ; wavelength in mm (.5 THz)
 (define-param wave_length intermediate) ; wavelength in mm
+(define-param wave_length above_cutoff) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
 (define-param d_lambda 2.0)
 (define-param outer_diameter (+ core_diameter 2))
