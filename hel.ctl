@@ -15,9 +15,11 @@
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
 (define-param df 0.1)  ; pulse width (in frequency)
 (define-param smooth_t 20)
+(define-param cw? true)
 
 (define-param b_helix (/ pitch (* 2 pi)))
 (define-param theta_helix (asin (/ b_helix (sqrt (+ (expt major_r 2) (expt b_helix 2))))))
+
 
 (define (get_t position)
 	(/ (vector3-z position) b_helix))
@@ -44,17 +46,21 @@
 
 (set! geometry (make-helix (- cz wave_length dpml)))
 
-(set! sources (list
-		(make source
-			(src (make continuous-src (frequency fcen) (width smooth_t)))
-			(component Ex)
-			(center 0 0 source_z)
-			(size (* 2 major_r) (* 2 major_r) 0))
-		(make source
-			(src (make continuous-src (frequency fcen) (width smooth_t)))
-			(component Ey)
-			(center 0 0 source_z)
-			(size (* 2 major_r) (* 2 major_r) 0))))
+(set! sources
+	(if cw? 
+		(list
+		  (make source
+			  (src (make continuous-src (frequency fcen) (width smooth_t)))
+			  (component Ex)
+			  (center 0 0 source_z)
+			  (size (* 2 major_r) (* 2 major_r) 0))
+		  (make source
+			  (src (make continuous-src (frequency fcen) (width smooth_t)))
+			  (component Ey)
+			  (center 0 0 source_z)
+			  (size (* 2 major_r) (* 2 major_r) 0)))
+		(list
+			(make source
 
 (set! pml-layers (list (make pml (thickness 1.0))))
 
