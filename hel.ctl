@@ -7,14 +7,14 @@
 (define-param major_r 3)
 (define-param minor_r 0.4)
 
-(define-param cx (+ (* 2 major_r) (* 2 minor_r) 8.0)) ; size of cell in X direction
+(define-param cx (+ (* 2 major_r) (* 2 minor_r) 6.0)) ; size of cell in X direction
 (define-param cy cx) ; size of cell in Y direction
-(define-param cz (* wave_length 20.0)) ; size of cell in Z direction
+(define-param cz (* wave_length 40.0)) ; size of cell in Z direction
 
 (define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
 (define-param df 0.1)  ; pulse width (in frequency)
-(define-param smooth_t 30)
+(define-param smooth_t 20)
 
 (define-param b_helix (/ pitch (* 2 pi)))
 (define-param theta_helix (asin (/ b_helix (sqrt (+ (expt major_r 2) (expt b_helix 2))))))
@@ -47,6 +47,11 @@
 (set! sources (list
 		(make source
 			(src (make continuous-src (frequency fcen) (width smooth_t)))
+			(component Ex)
+			(center 0 0 source_z)
+			(size (* 2 major_r) (* 2 major_r) 0))
+		(make source
+			(src (make continuous-src (frequency fcen) (width smooth_t)))
 			(component Ey)
 			(center 0 0 source_z)
 			(size (* 2 major_r) (* 2 major_r) 0))))
@@ -55,7 +60,11 @@
 
 (set! resolution 10)
 
-(run-until 1
+(use-output-directory)
+(run-until 500
 	(at-beginning output-epsilon)
-	(to-appended "ey" (at-every 0.2 output-efield-y))
-	(to-appended "ex" (at-every 0.2 output-efield-x)))
+	(at-every 0.5
+		(with-prefix "xEy" (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
+		(with-prefix "yEy" (output-png Ey "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
+		(with-prefix "xEx" (output-png Ex "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
+		(with-prefix "yEx" (output-png Ex "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))))
