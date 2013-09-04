@@ -2,13 +2,14 @@
 (define-param intermediate 3);
 (define-param wave_length THZ) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
-(define-param pml_pad 4)
+(define-param pml_pad 2)
 
 (define-param pitch 1)
 (define-param major_r 3)
 (define-param minor_r 0.4)
+(define-param spacing (- pitch minor_r))
 
-(define-param cx (+ (* 2 major_r) (* 2 minor_r) (* 2 pml_pad))) ; size of cell in X direction
+(define-param cx (* 2 (+ major_r minor_r pml_pad dpml))) ; size of cell in X direction
 (define-param cy cx) ; size of cell in Y direction
 (define-param cz (* wave_length 80.0)) ; size of cell in Z direction
 
@@ -71,20 +72,18 @@
 			  (src (make gaussian-src (frequency fcen) (fwidth df)))
 			  (component Ex)
 			  (center 0 0 source_z)
-			  (size 2 major_r 2 major_r 0))
+			  (size major_r major_r 0))
 		  (make source
 			  (src (make gaussian-src (frequency fcen) (fwidth df)))
 			  (component Ey)
 			  (center 0 0 source_z)
-			  (size 2 major_r 2 major_r 0)))))
+			  (size major_r major_r 0)))))
 
 (set! pml-layers (list (make pml (thickness dpml))))
 
-(set! resolution 10)
+(set! resolution 12)
 
-
-
-(define-param nfreq 100) ; number of frequencies at which to compute flux
+(define-param nfreq 200) ; number of frequencies at which to compute flux
 (define-param trans_z (- (/ cz 2) dpml pml_pad))
 (define-param incident_z (+ source_z .5))
 
@@ -112,7 +111,7 @@
 		  (with-prefix "yEy" (output-png Ey "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "xEx" (output-png Ex "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "yEx" (output-png Ex "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))))
-  (run-until 600
+  (run-until 200
 	  (at-every 0.5
 		  (with-prefix "xEy" (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "yEy" (output-png Ey "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))

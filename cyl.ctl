@@ -52,15 +52,30 @@
 (define-param trans_z (- (/ cz 2) (* 3 dpml)))
 (define-param incident_z (+ source_z .5))
 
-(define transmitted ; transmitted flux
+(define f1
 	(add-flux fcen df nfreq
 		(make flux-region
-			(if wvg? (center 0 0 trans_z) (center 0 0 incident_z)) (size (* outer_diameter 2) (* outer_diameter 2) 0))))
+			(center 0 0 0)
+			(size core_diameter core_diameter 0))))
 
+(define-param f2_z (* (/ cz 6) 2))
+(print f2_z)
+
+(define f2
+	(add-flux fcen df nfreq
+		(make flux-region
+			(center 0 0 f2_z)
+			(size core_diameter core_diameter 0))))
+
+(use-output-directory)
 (run-until
-	(stop-when-fields-decayed 50 Ey (vector3 0 0 (if wvg? trans_z incident_z)) (if wvg? 2e-3 1e-3))
-	(to-appended "ey" (at-every 1 output-efield-y))
-	(to-appended "ex" (at-every 1 output-efield-x))
-	(at-beginning output-epsilon))
+	(stop-when-fields-decayed 50 Ey (vector3 0 0 f2_z) 2e-3)
+	(at-beginning output-epsilon)
+	(at-every 0.5
+		(with-prefix "xEy" (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
+		(with-prefix "yEy" (output-png Ey "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
+		(with-prefix "xEx" (output-png Ex "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
+		(with-prefix "yEx" (output-png Ex "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))))
 
-(display-fluxes transmitted)
+(display-fluxes f1 f2)
+(print f2_z)
