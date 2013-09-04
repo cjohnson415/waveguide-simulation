@@ -2,18 +2,18 @@
 (define-param intermediate 3);
 (define-param wave_length THZ) ; wavelength in mm
 (define-param dpml 1) ; thickness of PML
-(define-param pml_pad 2)
+(define-param pml_pad 1)
 
-(define-param pitch 1)
 (define-param major_r 3)
-(define-param minor_r 0.4)
-(define-param spacing (- pitch minor_r))
+(define-param minor_r 0.2)
+(define-param spacing .6)
+(define-param pitch (+ spacing (* minor_r 2)))
 
 (define-param cx (* 2 (+ major_r minor_r pml_pad dpml))) ; size of cell in X direction
 (define-param cy cx) ; size of cell in Y direction
 (define-param cz (* wave_length 80.0)) ; size of cell in Z direction
 
-(define-param source_z (+ (/ cz -2.0) wave_length dpml)) ;
+(define-param source_z (+ (/ cz -2.0) 8)) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
 (define-param df 1)  ; +/- .24 THz
 (define-param smooth_t 20)
@@ -23,11 +23,8 @@
 
 
 
-(define-param cw? false) ;if false, gaussian
-(define-param wvg? true) ;if false, no waveguide
+(define-param mov? true); if false, no pngs are output
 
-(if wvg? (print "wvgtrue!") (print "wvgfalse!"))
-(if cw? (print "cwtrue!") (print "cwfalse!"))
 
 (define (get_t position)
 	(/ (vector3-z position) b_helix))
@@ -55,37 +52,23 @@
 (set! geometry (make-helix (- cz wave_length dpml)))
 
 (set! sources
-	(if cw?
-		(list
-		  (make source
-			  (src (make continuous-src (frequency fcen) (width smooth_t)))
-			  (component Ex)
-			  (center 0 0 source_z)
-			  (size (* 2 major_r) (* 2 major_r) 0))
-		  (make source
-			  (src (make continuous-src (frequency fcen) (width smooth_t)))
-			  (component Ey)
-			  (center 0 0 source_z)
-			  (size (* 2 major_r) (* 2 major_r) 0)))
-		(list
-		  (make source
-			  (src (make gaussian-src (frequency fcen) (fwidth df)))
-			  (component Ex)
-			  (center 0 0 source_z)
-			  (size major_r major_r 0))
-		  (make source
-			  (src (make gaussian-src (frequency fcen) (fwidth df)))
-			  (component Ey)
-			  (center 0 0 source_z)
-			  (size major_r major_r 0)))))
+	(list
+	  (make source
+		  (src (make gaussian-src (frequency fcen) (fwidth df)))
+		  (component Ex)
+		  (center 0 0 source_z)
+		  (size major_r major_r 0))
+	  (make source
+		  (src (make gaussian-src (frequency fcen) (fwidth df)))
+		  (component Ey)
+		  (center 0 0 source_z)
+		  (size major_r major_r 0))))
 
 (set! pml-layers (list (make pml (thickness dpml))))
 
-(set! resolution 12)
+(set! resolution 14)
 
 (define-param nfreq 200) ; number of frequencies at which to compute flux
-(define-param trans_z (- (/ cz 2) dpml pml_pad))
-(define-param incident_z (+ source_z .5))
 
 (define f1
 	(add-flux fcen df nfreq
@@ -103,20 +86,13 @@
 			(size (* major_r 2) (* major_r 2) 0))))
 
 (use-output-directory)
-(if cw?
-  (run-until 500
-	  (at-beginning output-epsilon)
-	  (at-every 0.5
+(run-until 200
+	(if mov?
+	  (at-every 0.25
 		  (with-prefix "xEy" (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "yEy" (output-png Ey "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "xEx" (output-png Ex "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "yEx" (output-png Ex "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))))
-  (run-until 200
-	  (at-every 0.5
-		  (with-prefix "xEy" (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
-		  (with-prefix "yEy" (output-png Ey "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
-		  (with-prefix "xEx" (output-png Ex "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
-		  (with-prefix "yEx" (output-png Ex "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS")))
-	  (at-beginning output-epsilon)))
+	(at-beginning output-epsilon))
 
-(if (not cw?) (display-fluxes f1 f2))
+(display-fluxes f1 f2)
