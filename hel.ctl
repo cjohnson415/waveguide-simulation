@@ -4,9 +4,10 @@
 (define-param dpml 1) ; thickness of PML
 (define-param pml_pad 1)
 
-(define-param major_r 3)
-(define-param minor_r 0.2)
-(define-param spacing .6)
+(define-param major_r 2.55)
+(define-param minor_r1 0.3)
+(define-param minor_r 0.55)
+(define-param spacing 0)
 (define-param pitch (+ spacing (* minor_r 2)))
 
 (define-param cx (* 2 (+ major_r minor_r pml_pad dpml))) ; size of cell in X direction
@@ -15,16 +16,13 @@
 
 (define-param source_z (+ (/ cz -2.0) 8)) ;
 (define-param fcen (/ 1 wave_length)) ; pulse center frequency
-(define-param df 1)  ; +/- .24 THz
+(define-param df 1.2)  ; +/- .24 THz
 (define-param smooth_t 20)
 
 (define-param b_helix (/ pitch (* 2 pi)))
 (define-param theta_helix (asin (/ b_helix (sqrt (+ (expt major_r 2) (expt b_helix 2))))))
 
-
-
 (define-param mov? true); if false, no pngs are output
-
 
 (define (get_t position)
 	(/ (vector3-z position) b_helix))
@@ -35,12 +33,20 @@
 		(if (< t 0)
 			res
 			(loop (- t dt)
-				(cons (make cylinder
+				(cons (list
+					(make cylinder
 					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z))
 					(radius minor_r)
 					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
 					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
-					(material metal)) res)))))
+					(material (make dielectric (epsilon 3))))
+					(make cylinder
+					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z))
+					(radius minor_r1)
+					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
+					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
+					(material metal)))
+					res)))))
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
@@ -66,9 +72,10 @@
 
 (set! pml-layers (list (make pml (thickness dpml))))
 
-(set! resolution 14)
+(set! resolution 10)
 
-(define-param nfreq 200) ; number of frequencies at which to compute flux
+
+(define-param nfreq 300) ; number of frequencies at which to compute flux
 
 (define f1
 	(add-flux fcen df nfreq
@@ -88,7 +95,7 @@
 (use-output-directory)
 (run-until 200
 	(if mov?
-	  (at-every 0.25
+	  (at-every 0.5
 		  (with-prefix "xEy" (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "yEy" (output-png Ey "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
 		  (with-prefix "xEx" (output-png Ex "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
