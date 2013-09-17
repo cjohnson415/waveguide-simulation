@@ -33,20 +33,21 @@
 		(if (< t 0)
 			res
 			(loop (- t dt)
-				(cons (list
+				(cons
 					(make cylinder
 					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z))
 					(radius minor_r)
 					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
 					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
 					(material (make dielectric (epsilon 3))))
+					(cons
 					(make cylinder
 					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z))
 					(radius minor_r1)
 					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
 					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
-					(material metal)))
-					res)))))
+					(material metal))
+					res))))))
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
