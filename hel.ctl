@@ -23,6 +23,7 @@
 (define-param theta_helix (asin (/ b_helix (sqrt (+ (expt major_r 2) (expt b_helix 2))))))
 
 (define-param mov? true); if false, no pngs are output
+(define-param wvg? true)
 
 (define (get_t position)
 	(/ (vector3-z position) b_helix))
@@ -35,14 +36,14 @@
 			(loop (- t dt)
 				(cons
 					(make cylinder
-					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z))
+					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z (if wvg? () wave_length)))
 					(radius minor_r)
 					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
 					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
 					(material (make dielectric (epsilon 3))))
 					(cons
 					(make cylinder
-					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z))
+					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z (if wvg? () wave_length)))
 					(radius minor_r1)
 					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
 					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
@@ -56,7 +57,9 @@
 (define (make-helix axial-length)
 	(list-of-cyls (/ axial-length b_helix)))
 
-(set! geometry (make-helix (- cz wave_length dpml)))
+
+(set! geometry (if wvg? (make-helix (- cz wave_length dpml))
+(list (make block (center 0 0 0) (size 1 1 1) (material air)))))
 
 (set! sources
 	(list
@@ -78,13 +81,19 @@
 
 (define-param nfreq 300) ; number of frequencies at which to compute flux
 
+(define f_incident
+	(add-flux fcen df nfreq
+		(make flux-region
+			(center 0 0 (+ source_z (/ wave_length 6)))
+			(size (* major_r 2) (* major_r 2) 0))))
+
 (define f1
 	(add-flux fcen df nfreq
 		(make flux-region
 			(center 0 0 0)
 			(size (* major_r 2) (* major_r 2) 0))))
 
-(define-param f2_z (* (/ cz 6) 2))
+(define-param f2_z (/ cz 3))
 (print f2_z)
 
 (define f2
@@ -94,7 +103,7 @@
 			(size (* major_r 2) (* major_r 2) 0))))
 
 (use-output-directory)
-(run-until 200
+(run-until 100
 	(if mov?
 	  (at-every 0.5
 		  (with-prefix "xEy" (output-png Ey "-0y0 -R -Zc dkbluered -a green:0.5 -A $EPS"))
@@ -103,4 +112,7 @@
 		  (with-prefix "yEx" (output-png Ex "-0x0 -R -Zc dkbluered -a green:0.5 -A $EPS"))))
 	(at-beginning output-epsilon))
 
+(if wvg?
 (display-fluxes f1 f2)
+(display-fluxes f_incident))
+(print f2_z)
