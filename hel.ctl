@@ -4,10 +4,9 @@
 (define-param dpml 1) ; thickness of PML
 (define-param pml_pad 1)
 
-(define-param major_r 2.55)
-(define-param minor_r1 0.3)
-(define-param minor_r 0.55)
-(define-param spacing 0)
+(define-param major_r 2.0)
+(define-param minor_r 0.4)
+(define-param spacing 0.8)
 (define-param pitch (+ spacing (* minor_r 2)))
 
 (define-param cx (* 2 (+ major_r minor_r pml_pad dpml))) ; size of cell in X direction
@@ -40,15 +39,8 @@
 					(radius minor_r)
 					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
 					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
-					(material (make dielectric (epsilon 3))))
-					(cons
-					(make cylinder
-					(center (* major_r (cos t)) (* major_r (sin t)) (+ (* b_helix t) source_z (if wvg? () wave_length)))
-					(radius minor_r1)
-					(height (* dt (sqrt (+ (expt major_r 2) (expt b_helix 2)))))
-					(axis (* -1 major_r (sin t)) (* major_r (cos t)) b_helix)
 					(material metal))
-					res))))))
+					res)))))
 
 (set! geometry-lattice (make lattice (size cx cy cz)))
 
